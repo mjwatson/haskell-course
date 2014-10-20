@@ -77,6 +77,19 @@ instance Applicative Parser where
                Nothing    -> Nothing
                Just (a, s'') -> Just (g a, s'')
 
-
 abParser :: Parser (Char, Char)
-abParser = char 'a' <$> char 'b'
+abParser = (,) <$> char 'a' <*> char 'b'
+
+abParser_ :: Parser ()
+abParser_ = (\_ -> ()) <$> abParser
+
+intPair :: Parser [Integer]
+intPair = (\a _ b -> [a, b]) <$> posInt <*> char ' ' <*> posInt
+
+instance Alternative Parser where
+  empty = Parser (\_ -> Nothing)
+  Parser f <|> Parser g = Parser (\x -> f x <|> g x)
+
+intOrUppercase :: Parser ()
+intOrUppercase =  (unit <$>  (satisfy isUpper)) <|> (unit <$> posInt)
+                    where unit a = ()
