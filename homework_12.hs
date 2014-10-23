@@ -57,9 +57,10 @@ battle bf = sortedDice (attackDice bf) die >>= \ad ->
             return (losses bf ad dd)
 
 invade :: Battlefield -> Rand StdGen Battlefield
-invade bf | attackers bf < 2  = return bf
-          | defenders bf == 0 = return bf
-          | otherwise         = battle bf >>= invade
+invade bf | complete bf  = return bf
+          | otherwise    = battle bf >>= invade
+    where complete bf = attackers bf < 2  || 
+                        defenders bf == 0
 
 calculateResult :: [Battlefield] -> Double
 calculateResult bfs = (fromIntegral (length $ filter ((== 0) . defenders) $ bfs)) / 1000
